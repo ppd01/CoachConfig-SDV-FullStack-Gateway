@@ -1,0 +1,33 @@
+config_id: "SETRA-S515-BEV-EXT-RANGE"
+variant_name: "Setra S 515 HD eCoach"
+powertrain_type: "BEV"
+gross_vehicle_weight_rating_kg: 19500.0
+
+traction_battery:
+  chemistry: "LFP"
+  installed_capacity_kwh: 588.0
+  usable_soc_min_pct: 8.0
+  usable_soc_max_pct: 92.0
+  max_continuous_discharge_kw: 450.0
+  max_recup_power_kw: 350.0
+  cell_temp_derate_start_c: 45.0
+  cell_temp_shutdown_c: 55.0
+
+inverter_drive:
+  inverter_type: "Dual SiC Inverter (eAxle)"
+  max_traction_power_kw: 400.0
+  continuous_power_kw: 330.0
+  max_torque_nm: 3100.0
+  dc_bus_voltage_nominal_v: 750.0
+
+hvac_thermal:
+  passenger_heating_max_kw: 32.0
+  passenger_cooling_max_kw: 28.0
+  battery_cooling_strategy: "HEAT_PUMP_COUPLED"
+  cabin_target_temp_c: 21.0
+  preconditioning_allowed_on_battery: false
+
+metadata:
+  release_status: "Bench_Certified"
+  calibrated_by: "Powertrain-HMI-Group"
+  target_wheelbase_mm: 6910
