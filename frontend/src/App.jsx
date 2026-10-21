@@ -78,24 +78,31 @@ export default function App() {
     return () => ws.close();
   }, [wsUrl]);
 
-  // 2. Fetch Analytical Calibration Data
-  useEffect(() => {
-    fetch(`${apiBase}/api/v1/diff?variant_a_id=SETRA-S515-BEV-EXT-RANGE&variant_b_id=SETRA-H2COACH-FCEV-PROTOTYPE`)
+  // 2. Poll Analytical Calibration Data & Deployment Gate every 1 second
+useEffect(() => {
+  const fetchAnalytics = () => {
+    fetch('http://192.168.0.66:8000/api/v1/diff?variant_a_id=SETRA-S515-BEV-EXT-RANGE&variant_b_id=SETRA-H2COACH-FCEV-PROTOTYPE')
       .then((res) => {
-        if (!res.ok) throw new Error(`HTTP error ${res.status}`);
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
         return res.json();
       })
       .then((data) => setDiffData(data))
       .catch((err) => console.error("Error fetching diff:", err));
 
-    fetch(`${apiBase}/api/v1/validate/SETRA-S515-BEV-EXT-RANGE`)
+    fetch('http://192.168.0.66:8000/api/v1/validate/SETRA-S515-BEV-EXT-RANGE')
       .then((res) => {
-        if (!res.ok) throw new Error(`HTTP error ${res.status}`);
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
         return res.json();
       })
       .then((data) => setValidationData(data))
       .catch((err) => console.error("Error fetching validation:", err));
-  }, [apiBase]);
+  };
+
+  fetchAnalytics(); // Immediate run on mount
+  const interval = setInterval(fetchAnalytics, 1000); // Poll every 1000ms
+
+  return () => clearInterval(interval);
+}, []);
 
   return (
     <div className="min-h-screen bg-slate-950 text-slate-100 p-6 font-sans">

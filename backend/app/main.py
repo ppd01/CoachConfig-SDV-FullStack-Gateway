@@ -115,6 +115,7 @@ def _flatten_dict(d: dict, parent_key: str = "", sep: str = ".") -> dict:
 
 @app.get("/api/v1/diff", response_model=ConfigDiffResponse, tags=["Analytics"])
 async def diff_configurations(variant_a_id: str, variant_b_id: str):
+    load_seed_calibrations()  # <-- Reload fresh files from disk
     if variant_a_id not in CALIBRATION_STORE:
         raise HTTPException(status_code=404, detail=f"Variant {variant_a_id} not found.")
     if variant_b_id not in CALIBRATION_STORE:
@@ -158,6 +159,7 @@ async def diff_configurations(variant_a_id: str, variant_b_id: str):
 
 @app.get("/api/v1/validate/{config_id}", response_model=ValidationReport, tags=["Analytics"])
 async def validate_configuration(config_id: str):
+    load_seed_calibrations()  # <-- Reload fresh files from disk
     if config_id not in CALIBRATION_STORE:
         raise HTTPException(status_code=404, detail=f"Variant {config_id} not found.")
 
@@ -167,7 +169,7 @@ async def validate_configuration(config_id: str):
     if cfg.inverter_drive.max_traction_power_kw > cfg.traction_battery.max_continuous_discharge_kw:
         issues.append(
             ValidationIssue(
-                severity="WARNING",
+                severity="ERROR",
                 rule="POWER_DRAW_EXCEEDS_DISCHARGE_MARGIN",
                 message=(
                     f"Inverter peak traction power ({cfg.inverter_drive.max_traction_power_kw} kW) "
@@ -191,7 +193,7 @@ async def validate_configuration(config_id: str):
                 )
             )
 
-    has_fatal_errors = any(issue.severity == "ERROR" for issue in issues)
+    has_fatal_errors = any(issue.severity in ["ERROR", "CRITICAL"] for issue in issues)
 
     return ValidationReport(
         config_id=config_id,
